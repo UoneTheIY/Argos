@@ -3,48 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Argos</title>
+    <title>Argos AI</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="config.js"></script>
     <style>
-        :root { --bg: #0d1117; --accent: #238636; --text: #c9d1d9; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        :root { 
+            --bg: #0d1117; 
+            --accent: #238636; 
+            --text: #c9d1d9; 
+            --bubble-ai: #21262d;
+        }
         
-        header { padding: 10px 15px; background: #161b22; border-bottom: 1px solid #333; font-weight: bold; color: var(--accent); }
-
-        #chat { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden;
+        }
         
-        .msg { padding: 8px 12px; border-radius: 12px; max-width: 75%; font-size: 13px; line-height: 1.4; animation: fIn 0.2s ease; }
-        @keyframes fIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        header { 
+            padding: 12px 15px; 
+            background: #161b22; 
+            border-bottom: 1px solid #333; 
+            font-weight: bold; 
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-        .user { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 2px; }
-        .ai { align-self: flex-start; background: #21262d; border: 1px solid #333; border-bottom-left-radius: 2px; }
+        #chat { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+        }
+        
+        .msg { 
+            padding: 8px 12px; 
+            border-radius: 12px; 
+            max-width: 75%; 
+            line-height: 1.4; 
+            font-size: 13px; 
+            word-wrap: break-word;
+            animation: fadeIn 0.2s ease;
+        }
 
-        #input-area { padding: 10px; background: #161b22; display: flex; gap: 8px; border-top: 1px solid #333; }
-        input { flex: 1; padding: 10px 15px; border-radius: 20px; border: 1px solid #333; background: #0d1117; color: white; outline: none; font-size: 14px; }
-        button { background: var(--accent); color: white; border: none; padding: 8px 18px; border-radius: 20px; font-weight: bold; cursor: pointer; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .user { 
+            align-self: flex-end; 
+            background: var(--accent); 
+            color: white; 
+            border-bottom-right-radius: 2px; 
+        }
+        
+        .ai { 
+            align-self: flex-start; 
+            background: var(--bubble-ai); 
+            border: 1px solid #333; 
+            border-bottom-left-radius: 2px; 
+        }
+        
         pre { background: #000; padding: 8px; border-radius: 6px; overflow-x: auto; font-size: 11px; }
+
+        #input-area { 
+            padding: 10px 15px; 
+            background: #161b22; 
+            display: flex; 
+            gap: 10px; 
+            border-top: 1px solid #333; 
+            align-items: center;
+        }
+        
+        input { 
+            flex: 1; 
+            padding: 10px 15px; 
+            border-radius: 20px; 
+            border: 1px solid #333; 
+            background: #0d1117; 
+            color: white; 
+            outline: none; 
+            font-size: 14px;
+        }
+        
+        /* Botão com a Imagem de Envio */
+        #btn-enviar {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s;
+        }
+
+        #btn-enviar:active { transform: scale(0.9); }
+        #btn-enviar img { width: 28px; height: 28px; filter: invert(1); } /* Invert deixa o ícone branco */
+
+        #btn-enviar:disabled { opacity: 0.3; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-    <header>Argos (Ai)</header>
+    <header>Argos Ai</header>
 
     <div id="chat"></div>
 
     <div id="input-area">
         <input type="text" id="user-input" placeholder="Pergunte ao Argos..." autocomplete="off">
-        <button id="btn" onclick="enviar()">Enviar</button>
+        <button id="btn-enviar" onclick="enviar()">
+            <img src="https://cdn-icons-png.flaticon.com/512/3106/3106791.png" alt="Enviar">
+        </button>
     </div>
 
     <script>
+        // Caso o arquivo config.js não carregue, as variáveis ficam aqui
+        if (typeof CONFIG === 'undefined') {
+            var CONFIG = {
+                API_KEY: "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",
+                MODELO: "llama-3.3-70b-versatile",
+                SYSTEM_PROMPT: "Seu nome é Argos. Você é uma IA de elite, rápida e lógica."
+            };
+            var historico = JSON.parse(localStorage.getItem('uone_chat_data')) || [{ role: "system", content: CONFIG.SYSTEM_PROMPT }];
+        }
+
         const chatDiv = document.getElementById('chat');
         const input = document.getElementById('user-input');
-        const btn = document.getElementById('btn');
+        const btn = document.getElementById('btn-enviar');
 
-        // Carregar histórico inicial
-        function loadHistory() {
+        // Renderiza histórico ao abrir
+        function init() {
             historico.forEach(m => {
                 if(m.role !== 'system') add(m.content, m.role === 'user' ? 'user' : 'ai');
             });
@@ -55,20 +151,39 @@
             const texto = input.value.trim();
             if(!texto || btn.disabled) return;
 
-            // 1. Mostrar texto do usuário
             add(texto, 'user');
+            historico.push({ role: "user", content: texto });
             input.value = '';
             btn.disabled = true;
             
-            // 2. Criar balão de carregamento
             const msgIA = add('...', 'ai');
             
-            // 3. Chamar a função do config.js
             try {
-                const resposta = await chamarIA(texto);
+                // Se a função chamarIA não estiver no config.js, usamos o fetch direto aqui
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${CONFIG.API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: CONFIG.MODELO,
+                        messages: historico,
+                        temperature: 0.6
+                    })
+                });
+
+                const data = await res.json();
+                const resposta = data.choices[0].message.content;
+                
                 msgIA.innerHTML = marked.parse(resposta);
+                historico.push({ role: "assistant", content: resposta });
+                
+                if (historico.length > 20) historico.splice(1, 2);
+                localStorage.setItem('uone_chat_data', JSON.stringify(historico));
+
             } catch (e) {
-                msgIA.innerText = "Erro ao processar.";
+                msgIA.innerText = "Erro ao conectar com Argos.";
             } finally {
                 btn.disabled = false;
                 chatDiv.scrollTop = chatDiv.scrollHeight;
@@ -85,55 +200,7 @@
         }
 
         input.addEventListener("keypress", (e) => { if(e.key === "Enter") enviar(); });
-        
-        // Inicializa o chat
-        window.onload = loadHistory;
-    </script>
-</body>
-</html>
-
-    <div id="input-area">
-        <input type="text" id="user-input" placeholder="Diga algo..." autocomplete="off">
-        <button id="btn" onclick="enviar()">Enviar</button>
-    </div>
-
-    <script>
-        const chatDiv = document.getElementById('chat');
-        const input = document.getElementById('user-input');
-        const btn = document.getElementById('btn');
-
-        // Renderiza histórico salvo
-        historico.forEach(m => {
-            if(m.role !== 'system') add(m.content, m.role === 'user' ? 'user' : 'ai');
-        });
-
-        async function enviar() {
-            const texto = input.value.trim();
-            if(!texto || btn.disabled) return;
-
-            add(texto, 'user');
-            input.value = '';
-            btn.disabled = true;
-            
-            const msgIA = add('...', 'ai');
-            
-            const resposta = await chamarIA(texto);
-            msgIA.innerHTML = marked.parse(resposta);
-            
-            btn.disabled = false;
-            chatDiv.scrollTop = chatDiv.scrollHeight;
-        }
-
-        function add(txt, tipo) {
-            const div = document.createElement('div');
-            div.className = `msg ${tipo}`;
-            div.innerHTML = (tipo === 'ai') ? marked.parse(txt) : txt;
-            chatDiv.appendChild(div);
-            chatDiv.scrollTop = chatDiv.scrollHeight;
-            return div;
-        }
-
-        input.addEventListener("keypress", (e) => { if(e.key === "Enter") enviar(); });
+        window.onload = init;
     </script>
 </body>
 </html>
