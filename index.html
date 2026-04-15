@@ -17,7 +17,6 @@
             --danger: #da3633;
         }
         
-        /* CORREÇÃO AQUI: Usando dvh para o conteúdo caber na tela do celular */
         body, html { 
             background: var(--bg); 
             color: var(--text); 
@@ -26,6 +25,8 @@
             height: 100%; 
             height: 100dvh; 
             overflow: hidden;
+            display: flex;
+            justify-content: center; /* Centraliza horizontalmente */
         }
         
         .container { 
@@ -33,6 +34,9 @@
             flex-direction: column; 
             height: 100%; 
             width: 100%;
+            max-width: 600px; /* Limita largura em telas grandes para manter centralizado */
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
         }
 
         header { 
@@ -61,7 +65,6 @@
             color: var(--text); text-align: left; cursor: pointer; font-size: 14px;
         }
 
-        /* ÁREA DE CHAT CORRIGIDA */
         #chat { 
             flex: 1; 
             overflow-y: auto; 
@@ -76,7 +79,6 @@
         .user { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 2px; }
         .ai { align-self: flex-start; background: var(--bubble-ai); border: 1px solid var(--border); border-bottom-left-radius: 2px; }
 
-        /* INPUT FIXO NO RODAPÉ */
         #input-area { 
             padding: 10px 15px; 
             background: #161b22; 
@@ -84,11 +86,42 @@
             gap: 10px; 
             border-top: 1px solid var(--border);
             flex-shrink: 0;
-            padding-bottom: env(safe-area-inset-bottom, 15px); /* Ajuste para iPhones novos */
+            padding-bottom: env(safe-area-inset-bottom, 15px);
+            align-items: center;
         }
         
-        input { flex: 1; padding: 12px 18px; border-radius: 25px; border: 1px solid var(--border); background: #0d1117; color: white; outline: none; font-size: 16px; }
-        #btn-enviar img { width: 30px; height: 30px; filter: invert(1); }
+        input { 
+            flex: 1; 
+            padding: 12px 18px; 
+            border-radius: 25px; 
+            border: 1px solid var(--border); 
+            background: #0d1117; 
+            color: white; 
+            outline: none; 
+            font-size: 16px; 
+            margin-right: 5px; /* Espaço pro botão */
+        }
+        
+        #btn-enviar {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent); /* Cor do ícone */
+        }
+
+        /* CORREÇÃO DO ÍCONE: Seta de envio clássica */
+        #btn-enviar svg { 
+            width: 28px; 
+            height: 28px; 
+            fill: currentColor; /* Usa a cor definida no pai (--accent) */
+            transform: rotate(-45deg); /* Rotaciona para parecer um avião de papel */
+        }
+
+        #btn-enviar:disabled { opacity: 0.3; cursor: not-allowed; }
 
         /* MODAL */
         .modal-overlay {
@@ -110,7 +143,7 @@
 
     <div class="container">
         <header>
-            <h1>🤖 ARGOS AI</h1>
+            <h1>Argos Ai (beginner)</h1>
             <div class="menu-container">
                 <button class="btn-menu" onclick="toggleMenu()">⋮</button>
                 <div id="dropdown" class="dropdown">
@@ -123,8 +156,10 @@
 
         <div id="input-area">
             <input type="text" id="user-input" placeholder="Pergunte ao Argos..." autocomplete="off">
-            <button id="btn-enviar" onclick="enviar()" style="background:none; border:none; cursor:pointer;">
-                <img src="https://cdn-icons-png.flaticon.com/512/3106/3106791.png" alt="Enviar">
+            <button id="btn-enviar" onclick="enviar()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                </svg>
             </button>
         </div>
     </div>
@@ -143,13 +178,14 @@
         const CONFIG = {
             API_KEY: "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",
             MODELO: "llama-3.3-70b-versatile",
-            SYSTEM_PROMPT: "Seu nome é Argos. Você é uma IA iniciante, rápida, lógica e seu criador é Uone."
+            SYSTEM_PROMPT: "Seu nome é Argos. Você é uma IA iniciante más rápida e lógica, seu criador se chama Uone."
         };
 
         let historico = JSON.parse(localStorage.getItem('argos_v4')) || [{ role: "system", content: CONFIG.SYSTEM_PROMPT }];
 
         const chatDiv = document.getElementById('chat');
         const input = document.getElementById('user-input');
+        const btnEnviar = document.getElementById('btn-enviar');
         const dropdown = document.getElementById('dropdown');
         const modal = document.getElementById('modal-confirm');
 
@@ -166,11 +202,12 @@
 
         async function enviar() {
             const texto = input.value.trim();
-            if(!texto) return;
+            if(!texto || btnEnviar.disabled) return;
 
             renderMsg(texto, 'user');
             historico.push({ role: "user", content: texto });
             input.value = '';
+            btnEnviar.disabled = true; // Desabilita enquanto espera resposta
             
             const msgIA = renderMsg('...', 'ai');
             
@@ -189,8 +226,10 @@
                 localStorage.setItem('argos_v4', JSON.stringify(historico));
             } catch (e) {
                 msgIA.innerText = "Erro na conexão.";
+            } finally {
+                btnEnviar.disabled = false; // Reabilita
+                scrollChat();
             }
-            scrollChat();
         }
 
         function renderMsg(txt, tipo) {
