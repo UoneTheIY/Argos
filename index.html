@@ -35,7 +35,6 @@
             width: 100%;
             max-width: 500px;
             background: var(--bg);
-            position: relative;
         }
 
         header { 
@@ -77,12 +76,12 @@
         .user { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
         .ai { align-self: flex-start; background: var(--bubble-ai); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
 
-        /* AJUSTE AQUI: Padding e margens para o botão não grudar */
+        /* AJUSTE DE SIMETRIA NO RODAPÉ */
         #input-area { 
-            padding: 12px 20px; /* Aumentei o padding lateral */
+            padding: 12px 15px; /* Padding igual nos dois lados */
             background: #161b22; 
             display: flex; 
-            gap: 12px; 
+            gap: 10px; 
             border-top: 1px solid var(--border);
             align-items: center;
             padding-bottom: calc(12px + env(safe-area-inset-bottom));
@@ -97,14 +96,19 @@
             color: white; 
             outline: none; 
             font-size: 16px; 
+            min-width: 0; /* Garante que o flex-grow não quebre o layout */
         }
         
         #btn-enviar {
-            background: none; border: none; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            background: none; 
+            border: none; 
+            cursor: pointer;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
             color: var(--accent); 
-            padding: 0;
-            margin-right: 5px; /* Margem extra para não encostar na borda direita */
+            padding: 5px;
+            margin-right: 5px; /* AFASATA DA DIREITA */
             flex-shrink: 0;
         }
 
@@ -135,7 +139,7 @@
             <div class="menu-container">
                 <button class="btn-menu" onclick="toggleMenu()">⋮</button>
                 <div id="dropdown" class="dropdown">
-                    <button onclick="abrirModal()">🗑️ Excluir Chat</button>
+                    <button onclick="abrirModal()">Excluir Chat</button>
                 </div>
             </div>
         </header>
@@ -165,10 +169,10 @@
         const CONFIG = {
             API_KEY: "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",
             MODELO: "llama-3.3-70b-versatile",
-            SYSTEM_PROMPT: "Seu nome é Argos. Você é uma IA de elite, rápida e lógica. Apresente-se como uma IA iniciante criada por Uone."
+            SYSTEM_PROMPT: "Seu nome é Argos. Você é uma IA iniciante, rápida e lógica. Você foi criada por Uone."
         };
 
-        let historico = JSON.parse(localStorage.getItem('argos_final')) || [{ role: "system", content: CONFIG.SYSTEM_PROMPT }];
+        let historico = JSON.parse(localStorage.getItem('argos_vFinal')) || [{ role: "system", content: CONFIG.SYSTEM_PROMPT }];
 
         const chatDiv = document.getElementById('chat');
         const input = document.getElementById('user-input');
@@ -186,7 +190,7 @@
         function abrirModal() { modal.style.display = 'flex'; dropdown.style.display = 'none'; }
         function fecharModal() { modal.style.display = 'none'; }
         function deletarChat() { 
-            localStorage.removeItem('argos_final'); 
+            localStorage.removeItem('argos_vFinal'); 
             historico = [{ role: "system", content: CONFIG.SYSTEM_PROMPT }]; 
             init(); 
             fecharModal(); 
@@ -215,7 +219,7 @@
                 
                 msgIA.innerHTML = marked.parse(resposta);
                 historico.push({ role: "assistant", content: resposta });
-                localStorage.setItem('argos_final', JSON.stringify(historico));
+                localStorage.setItem('argos_vFinal', JSON.stringify(historico));
             } catch (e) {
                 msgIA.innerText = "Erro na conexão.";
             } finally {
@@ -242,3 +246,4 @@
     </script>
 </body>
 </html>
+
