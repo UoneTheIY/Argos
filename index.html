@@ -12,175 +12,132 @@
         .container { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 500px; background: var(--bg); position: relative; }
         header { height: 60px; padding: 0 15px; background: #161b22; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
         header h1 { font-size: 17px; color: var(--accent); margin: 0; font-weight: 600; }
-        header h1 span { color: #8b949e; font-size: 13px; font-weight: normal; }
+        header h1 span { color: #8b949e; font-size: 11px; font-weight: normal; }
         .btn-menu { background: none; border: none; color: #8b949e; font-size: 22px; cursor: pointer; padding: 5px; }
         .dropdown { position: absolute; right: 10px; top: 50px; background: #1c2128; border: 1px solid var(--border); border-radius: 10px; width: 160px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100; }
         .dropdown button { width: 100%; padding: 14px; background: none; border: none; color: var(--text); text-align: left; cursor: pointer; font-size: 14px; }
-        #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; position: relative; scroll-behavior: smooth; }
+        #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
         #empty-state { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 80%; pointer-events: none; }
-        #empty-state h2 { font-size: 20px; margin: 0; color: white; text-transform: uppercase; }
-        #empty-state .linha { width: 120px; height: 2px; background: var(--accent); margin: 10px auto; opacity: 0.7; }
-        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.5; z-index: 2; overflow-wrap: break-word; }
+        #empty-state h2 { font-size: 20px; margin: 0; color: white; }
+        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.5; overflow-wrap: break-word; }
         .user { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
         .ai { align-self: flex-start; background: var(--bubble-ai); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-        #input-area { padding: 12px 15px; background: #161b22; display: flex; gap: 10px; border-top: 1px solid var(--border); align-items: center; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
-        input { flex: 1; padding: 12px 18px; border-radius: 25px; border: 1px solid var(--border); background: #0d1117; color: white; outline: none; font-size: 16px; min-width: 0; }
-        #btn-enviar { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--accent); padding: 5px; margin-right: 5px; flex-shrink: 0; }
-        #btn-enviar svg { width: 28px; height: 28px; fill: currentColor; }
+        #input-area { padding: 12px 15px; background: #161b22; display: flex; gap: 10px; border-top: 1px solid var(--border); padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+        input { flex: 1; padding: 12px 18px; border-radius: 25px; border: 1px solid var(--border); background: #0d1117; color: white; outline: none; font-size: 16px; }
+        #btn-enviar { background: none; border: none; color: var(--accent); cursor: pointer; }
         #btn-enviar:disabled { opacity: 0.3; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-        .modal { background: #1c2128; padding: 25px; border-radius: 15px; width: 100%; max-width: 320px; text-align: center; border: 1px solid var(--border); }
-        .modal-btns { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
-        .modal-btns button { flex: 1; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
-        .btn-sim { background: var(--danger); color: white; }
-        .btn-nao { background: #30363d; color: var(--text); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal { background: #1c2128; padding: 25px; border-radius: 15px; width: 280px; text-align: center; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
     <div class="container">
         <header>
-            <h1>Argos Ai <span>(v2.1 Fix)</span></h1>
-            <div class="menu-container">
-                <button class="btn-menu" onclick="toggleMenu()">⋮</button>
-                <div id="dropdown" class="dropdown">
-                    <button onclick="abrirModal()">🗑️ Excluir Chat</button>
-                </div>
+            <h1>Argos Ai <span>STABLE V2</span></h1>
+            <button class="btn-menu" onclick="toggleMenu()">⋮</button>
+            <div id="dropdown" class="dropdown">
+                <button onclick="abrirModal()">🗑️ Limpar Chat</button>
             </div>
         </header>
 
         <div id="chat">
-            <div id="empty-state">
-                <h2>Olá, como devo te chamar?</h2>
-                <div class="linha"></div>
-            </div>
+            <div id="empty-state"><h2>Como posso ajudar?</h2></div>
         </div>
 
         <div id="input-area">
-            <input type="text" id="user-input" placeholder="Pergunte ao Argos..." autocomplete="off">
+            <input type="text" id="user-input" placeholder="Digite aqui..." autocomplete="off">
             <button id="btn-enviar" onclick="enviar()">
-                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
             </button>
         </div>
     </div>
 
     <div id="modal-confirm" class="modal-overlay">
         <div class="modal">
-            <p style="margin:0; font-size:16px;">Deletar este chat?</p>
-            <div class="modal-btns">
-                <button class="btn-nao" onclick="fecharModal()">Não</button>
-                <button class="btn-sim" onclick="deletarChat()">Sim</button>
-            </div>
+            <p>Apagar conversa?</p>
+            <button onclick="deletarChat()" style="background:var(--danger); color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">Sim, apagar</button>
+            <button onclick="fecharModal()" style="background:transparent; color:var(--text); border:none; margin-left:10px; cursor:pointer;">Não</button>
         </div>
     </div>
 
     <script>
         const CONFIG = {
             API_KEY: "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",
-            MODELO: "llama-3.3-70b-versatile",
-            SYSTEM_PROMPT: "Seu nome é Argos, criado por Uone. Você é uma IA iniciante. Responda de forma clara, direta e use emojis se necessário."
+            // Troquei para o modelo 8b que é mais estável para sites estáticos
+            MODELO: "llama3-8b-8192", 
+            SYSTEM_PROMPT: "Seu nome é Argos, você é uma IA iniciante e criado por Uone, use emojis se necessário."
+    
         };
 
-        let historico = JSON.parse(localStorage.getItem('argos_vFinal')) || [{ role: "system", content: CONFIG.SYSTEM_PROMPT }];
+        let historico = JSON.parse(localStorage.getItem('argos_cache')) || [{ role: "system", content: CONFIG.SYSTEM_PROMPT }];
 
-        const chatDiv = document.getElementById('chat');
-        const emptyState = document.getElementById('empty-state');
-        const input = document.getElementById('user-input');
-        const btnEnviar = document.getElementById('btn-enviar');
-
-        function init() {
-            chatDiv.innerHTML = '';
-            chatDiv.appendChild(emptyState);
-            const msgsReais = historico.filter(m => m.role !== 'system');
-            if (msgsReais.length > 0) {
-                emptyState.style.display = 'none';
-                msgsReais.forEach(m => renderMsg(m.content, m.role === 'user' ? 'user' : 'ai'));
-            }
-            scrollChat();
-        }
-
-        function toggleMenu() { document.getElementById('dropdown').style.display = document.getElementById('dropdown').style.display === 'block' ? 'none' : 'block'; }
-        function abrirModal() { document.getElementById('modal-confirm').style.display = 'flex'; document.getElementById('dropdown').style.display = 'none'; }
+        function toggleMenu() { const d = document.getElementById('dropdown'); d.style.display = d.style.display === 'block' ? 'none' : 'block'; }
+        function abrirModal() { document.getElementById('modal-confirm').style.display = 'flex'; toggleMenu(); }
         function fecharModal() { document.getElementById('modal-confirm').style.display = 'none'; }
-        
-        function deletarChat() { 
-            localStorage.removeItem('argos_vFinal'); 
-            historico = [{ role: "system", content: CONFIG.SYSTEM_PROMPT }]; 
-            init(); 
-            fecharModal();
-            emptyState.style.display = 'block';
-        }
+        function deletarChat() { localStorage.removeItem('argos_cache'); location.reload(); }
 
         async function enviar() {
+            const input = document.getElementById('user-input');
+            const btn = document.getElementById('btn-enviar');
             const texto = input.value.trim();
-            if(!texto || btnEnviar.disabled) return;
+            if(!texto || btn.disabled) return;
 
-            emptyState.style.display = 'none';
+            document.getElementById('empty-state').style.display = 'none';
             renderMsg(texto, 'user');
             input.value = '';
-            btnEnviar.disabled = true;
-            
+            btn.disabled = true;
+
             const msgIA = renderMsg('...', 'ai');
-            
-            // Filtro para garantir que o histórico enviado seja limpo e leve
-            const contextoCurto = [
-                historico[0], 
-                ...historico.slice(-8), 
-                { role: "user", content: texto }
-            ];
 
             try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
-                    headers: { 
-                        "Authorization": `Bearer ${CONFIG.API_KEY}`, 
-                        "Content-Type": "application/json; charset=UTF-8" 
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${CONFIG.API_KEY}`
                     },
-                    body: JSON.stringify({ 
-                        model: CONFIG.MODELO, 
-                        messages: contextoCurto, 
-                        temperature: 0.7,
-                        max_tokens: 1024
+                    body: JSON.stringify({
+                        model: CONFIG.MODELO,
+                        messages: [...historico.slice(-6), { role: "user", content: texto }],
+                        temperature: 0.6
                     })
                 });
 
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    throw new Error(errorData.error?.message || "Erro na API");
+                const data = await response.json();
+                
+                if (data.choices && data.choices[0]) {
+                    const resposta = data.choices[0].message.content;
+                    msgIA.innerHTML = marked.parse(resposta);
+                    historico.push({ role: "user", content: texto }, { role: "assistant", content: resposta });
+                    localStorage.setItem('argos_cache', JSON.stringify(historico));
+                } else {
+                    throw new Error();
                 }
-
-                const data = await res.json();
-                const resposta = data.choices[0].message.content;
-                
-                historico.push({ role: "user", content: texto });
-                historico.push({ role: "assistant", content: resposta });
-                
-                msgIA.innerHTML = marked.parse(resposta);
-                localStorage.setItem('argos_vFinal', JSON.stringify(historico));
             } catch (e) {
-                msgIA.innerText = "Ops! Tente novamente em instantes.";
-                console.error("Erro Argos:", e);
+                msgIA.innerText = "Erro: Verifique sua chave API ou conexão.";
             } finally {
-                btnEnviar.disabled = false;
-                scrollChat();
+                btn.disabled = false;
+                document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
             }
         }
 
         function renderMsg(txt, tipo) {
             const div = document.createElement('div');
             div.className = `msg ${tipo}`;
-            if (tipo === 'user') div.textContent = txt;
-            else div.innerHTML = (txt === '...') ? txt : marked.parse(txt);
-            chatDiv.appendChild(div);
-            scrollChat();
+            div.innerHTML = tipo === 'user' ? txt : marked.parse(txt);
+            document.getElementById('chat').appendChild(div);
+            document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
             return div;
         }
 
-        function scrollChat() { chatDiv.scrollTop = chatDiv.scrollHeight; }
-        input.addEventListener("keypress", (e) => { if(e.key === "Enter") enviar(); });
-        window.onclick = (e) => { if (!e.target.matches('.btn-menu')) document.getElementById('dropdown').style.display = 'none'; };
-        window.onload = init;
+        window.onload = () => {
+            const msgs = historico.filter(m => m.role !== 'system');
+            if(msgs.length > 0) {
+                document.getElementById('empty-state').style.display = 'none';
+                msgs.forEach(m => renderMsg(m.content, m.role === 'user' ? 'user' : 'ai'));
+            }
+        };
     </script>
 </body>
 </html>
-
