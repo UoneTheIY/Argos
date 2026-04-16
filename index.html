@@ -50,9 +50,12 @@
         }
         .dropdown button { width: 100%; padding: 14px; background: none; border: none; color: var(--text); text-align: left; cursor: pointer; font-size: 14px; }
 
-        #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; position: relative; }
+        #chat { 
+            flex: 1; overflow-y: auto; padding: 15px; 
+            display: flex; flex-direction: column; gap: 15px; 
+            position: relative; scroll-behavior: smooth;
+        }
 
-        /* TELA INICIAL CENTRALIZADA */
         #empty-state {
             position: absolute; top: 45%; left: 50%;
             transform: translate(-50%, -50%); text-align: center;
@@ -61,11 +64,10 @@
         #empty-state h2 { font-size: 20px; margin: 0; color: white; text-transform: uppercase; }
         #empty-state .linha { width: 120px; height: 2px; background: var(--accent); margin: 10px auto; opacity: 0.7; }
         
-        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.5; z-index: 2; }
+        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.5; z-index: 2; overflow-wrap: break-word; }
         .user { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
         .ai { align-self: flex-start; background: var(--bubble-ai); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
 
-        /* BARRA DE INPUT COM MARGEM PARA A SETA */
         #input-area { 
             padding: 12px 15px; background: #161b22; 
             display: flex; gap: 10px; border-top: 1px solid var(--border);
@@ -78,7 +80,7 @@
             background: none; border: none; cursor: pointer; 
             display: flex; align-items: center; justify-content: center; 
             color: var(--accent); padding: 5px; 
-            margin-right: 5px; /* AQUI ESTÁ O ESPAÇO DA DIREITA */
+            margin-right: 5px; 
             flex-shrink: 0; 
         }
         #btn-enviar svg { width: 28px; height: 28px; fill: currentColor; }
@@ -96,7 +98,7 @@
 
     <div class="container">
         <header>
-            <h1>Argos Ai <span>(beginner)</span></h1>
+            <h1>Argos Ai <span>(v2 Otimizada)</span></h1>
             <div class="menu-container">
                 <button class="btn-menu" onclick="toggleMenu()">⋮</button>
                 <div id="dropdown" class="dropdown">
@@ -122,7 +124,7 @@
 
     <div id="modal-confirm" class="modal-overlay">
         <div class="modal">
-            <p style="margin:0; font-size:16px;">Você tem certeza que vai deletar este chat?</p>
+            <p style="margin:0; font-size:16px;">Deletar este chat?</p>
             <div class="modal-btns">
                 <button class="btn-nao" onclick="fecharModal()">Não</button>
                 <button class="btn-sim" onclick="deletarChat()">Sim</button>
@@ -134,7 +136,7 @@
         const CONFIG = {
             API_KEY: "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",
             MODELO: "llama-3.3-70b-versatile",
-            SYSTEM_PROMPT: "Seu nome é Argos. Criado por Uone. Seja uma IA direta e lógica."
+            SYSTEM_PROMPT: "Seu nome é Argos, criado por Uone. Seja extremamente inteligente, direto e útil. Use markdown para formatar códigos ou listas."
         };
 
         let historico = JSON.parse(localStorage.getItem('argos_vFinal')) || [{ role: "system", content: CONFIG.SYSTEM_PROMPT }];
@@ -173,25 +175,43 @@
 
             emptyState.style.display = 'none';
             renderMsg(texto, 'user');
-            historico.push({ role: "user", content: texto });
             input.value = '';
             btnEnviar.disabled = true;
             
             const msgIA = renderMsg('...', 'ai');
             
+            // OTIMIZAÇÃO: Envia apenas as últimas 10 mensagens para economizar tokens e ser mais rápido
+            const contextoCurto = [
+                historico[0], // Sempre mantém o System Prompt
+                ...historico.slice(-10), 
+                { role: "user", content: texto }
+            ];
+
             try {
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: { "Authorization": `Bearer ${CONFIG.API_KEY}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ model: CONFIG.MODELO, messages: historico, temperature: 0.5 }) // Temperatura menor = menos loucura
+                    body: JSON.stringify({ 
+                        model: CONFIG.MODELO, 
+                        messages: contextoCurto, 
+                        temperature: 0.7, // Mais inteligente
+                        top_p: 0.9,      // Melhor vocabulário
+                        max_tokens: 2048 // Limite para não cortar a resposta
+                    })
                 });
+
+                if (!res.ok) throw new Error();
+
                 const data = await res.json();
                 const resposta = data.choices[0].message.content;
-                msgIA.innerHTML = marked.parse(resposta);
+                
+                historico.push({ role: "user", content: texto });
                 historico.push({ role: "assistant", content: resposta });
+                
+                msgIA.innerHTML = marked.parse(resposta);
                 localStorage.setItem('argos_vFinal', JSON.stringify(historico));
             } catch (e) {
-                msgIA.innerText = "Erro na conexão.";
+                msgIA.innerText = "Erro na conexão. Verifique sua internet.";
             } finally {
                 btnEnviar.disabled = false;
                 scrollChat();
@@ -215,3 +235,4 @@
     </script>
 </body>
 </html>
+
