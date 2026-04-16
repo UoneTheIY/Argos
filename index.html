@@ -3,34 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.M</title>
+    <title>A.M. - Advanced Machine</title>
     <style>
         :root {
-            --bg: #0a0a0a;
-            --panel: #161616;
+            --bg: #050505;
+            --panel: #111111;
             --accent: #00ffcc;
             --text: #e0e0e0;
-            --user-msg: #1e3a8a;
+            --user-msg: #162a5e;
+            --border: #333;
         }
 
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Consolas', monospace;
+            font-family: 'Consolas', 'Courier New', monospace;
             margin: 0;
             display: flex;
             flex-direction: column;
             height: 100vh;
+            overflow: hidden;
         }
 
+        /* Cabeçalho */
         header {
             background: var(--panel);
             padding: 15px;
             text-align: center;
             border-bottom: 2px solid var(--accent);
-            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+            z-index: 10;
         }
 
+        h1 { margin: 0; font-size: 1.2rem; letter-spacing: 4px; color: var(--accent); }
+
+        /* Área de Chat */
         #chat-container {
             flex: 1;
             overflow-y: auto;
@@ -44,72 +51,104 @@
         .message {
             max-width: 85%;
             padding: 15px;
-            border-radius: 5px;
+            border-radius: 4px;
             line-height: 1.6;
             word-wrap: break-word;
-            white-space: pre-wrap; /* Preserva quebras de linha */
+            position: relative;
+            animation: fadeIn 0.3s ease;
         }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .user-message {
             align-self: flex-end;
             background-color: var(--user-msg);
             border-right: 4px solid #3b82f6;
+            color: #fff;
         }
 
         .am-message {
             align-self: flex-start;
             background-color: var(--panel);
             border-left: 4px solid var(--accent);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
         }
 
+        /* Estilo para o negrito que você pediu */
+        strong {
+            color: var(--accent);
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 255, 204, 0.5);
+        }
+
+        /* Área de Input */
         .input-area {
             background: var(--panel);
             padding: 20px;
             display: flex;
             gap: 10px;
+            border-top: 1px solid var(--border);
         }
 
         input {
             flex: 1;
-            background: #222;
-            border: 1px solid #444;
+            background: #000;
+            border: 1px solid var(--border);
             padding: 15px;
             color: var(--accent);
-            border-radius: 5px;
+            border-radius: 4px;
             outline: none;
+            font-family: inherit;
         }
+
+        input:focus { border-color: var(--accent); }
 
         button {
             background: var(--accent);
             color: black;
             border: none;
             padding: 0 25px;
-            border-radius: 5px;
+            border-radius: 4px;
             font-weight: bold;
             cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
         }
 
-        button:disabled { background: #444; cursor: not-allowed; }
+        button:hover { background: #00cca3; }
+        button:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); }
     </style>
 </head>
 <body>
 
 <header>
-    <h1 style="margin:0; font-size: 1.2rem; letter-spacing: 3px;">A.M. Core Interface</h1>
+    <h1>A.M</h1>
 </header>
 
-<div id="chat-container"></div>
+<div id="chat-container">
+    <div class="message am-message">Sistemas carregados. <strong>A.M.</strong> online e aguardando entrada de dados.</div>
+</div>
 
 <div class="input-area">
-    <input type="text" id="userInput" placeholder="Ask A.M..." onkeypress="handleKeyPress(event)">
-    <button id="sendBtn" onclick="sendMessage()">Send</button>
+    <input type="text" id="userInput" placeholder="Digite um comando..." autocomplete="off" onkeypress="handleKeyPress(event)">
+    <button id="sendBtn" onclick="sendMessage()">EXECUTAR</button>
 </div>
 
 <script>
+    // --- INSIRA SUA CHAVE DA GROQ API AQUI ---
     const GROQ_API_KEY = "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"; 
     
+    // Histórico para Memória de Contexto
     let messages = [
-        { role: "system", content: "Você é a A.M. (Advanced Machine). Suas respostas são técnicas, frias e extremamente lógicas. Use Markdown se necessário." }
+        { 
+            role: "system", 
+            content: "Você é a A.M. (Advanced Machine). Uma inteligência artificial iniciante mas fria, lógica e eficiente. Use **negrito** (dois asteriscos) com frequência para destacar termos importantes. Se o usuário falar algo sem sentido, responda com desdém lógico." 
+        }
     ];
 
     async function sendMessage() {
@@ -119,18 +158,17 @@
 
         if (!text) return;
 
-        // Bloquear input durante o processo
+        // Interface: bloqueia para evitar múltiplos envios
         inputField.value = '';
         inputField.disabled = true;
         sendBtn.disabled = true;
 
-        appendMessage('user', text);
+        // Adiciona mensagem do usuário
+        appendMessageElement('user', text);
         messages.push({ role: "user", content: text });
 
-        // Criar o container da resposta da A.M. vazio
-        const amMsgDiv = appendMessage('am', "");
-        
-        // Fazer scroll para o início da mensagem da A.M.
+        // Prepara o container da A.M. para o Streaming
+        const amMsgDiv = appendMessageElement('am', "Processando...");
         amMsgDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
         try {
@@ -143,14 +181,18 @@
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
                     messages: messages,
-                    temperature: 0.5,
-                    stream: true // ATIVA O MODO DE DIGITAÇÃO
+                    temperature: 0.6,
+                    stream: true 
                 })
             });
+
+            if (!response.ok) throw new Error("Falha na conexão com o núcleo.");
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let fullText = "";
+
+            amMsgDiv.innerHTML = ""; // Limpa o "Processando..."
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -161,21 +203,32 @@
 
                 for (const line of lines) {
                     if (line.startsWith("data: ") && line !== "data: [DONE]") {
-                        const json = JSON.parse(line.substring(6));
-                        const content = json.choices[0].delta.content;
-                        if (content) {
-                            fullText += content;
-                            amMsgDiv.innerText = fullText; // Atualiza o texto na tela aos poucos
-                        }
+                        try {
+                            const json = JSON.parse(line.substring(6));
+                            const content = json.choices[0].delta.content;
+                            
+                            if (content) {
+                                fullText += content;
+                                
+                                // --- MOTOR DE FORMATAÇÃO ---
+                                // 1. Transforma **texto** em <strong>texto</strong>
+                                let formatted = fullText.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+                                
+                                // 2. Transforma quebras de linha em <br>
+                                formatted = formatted.replace(/\n/g, "<br>");
+                                
+                                amMsgDiv.innerHTML = formatted;
+                            }
+                        } catch (e) { /* Erro de parse ignorado durante o stream */ }
                     }
                 }
             }
 
+            // Salva a resposta final na memória
             messages.push({ role: "assistant", content: fullText });
 
         } catch (error) {
-            amMsgDiv.innerText = "ERRO DE PROTOCOLO: Falha na comunicação.";
-            console.error(error);
+            amMsgDiv.innerHTML = `<span style="color: #ff4444;">[ERRO CRÍTICO]: ${error.message}</span>`;
         } finally {
             inputField.disabled = false;
             sendBtn.disabled = false;
@@ -183,13 +236,14 @@
         }
     }
 
-    function appendMessage(role, text) {
+    function appendMessageElement(role, text) {
         const chatContainer = document.getElementById('chat-container');
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${role === 'user' ? 'user-message' : 'am-message'}`;
-        msgDiv.innerText = text;
+        msgDiv.innerHTML = text; 
         chatContainer.appendChild(msgDiv);
-        return msgDiv; // Retorna o elemento para podermos atualizar o texto depois
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        return msgDiv;
     }
 
     function handleKeyPress(e) {
