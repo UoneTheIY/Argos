@@ -3,85 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Argos Ia</title>
+    <title>Argos</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f0f0f; color: white; display: flex; flex-direction: column; height: 100vh; margin: 0; }
         #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        .msg { padding: 12px 16px; border-radius: 12px; max-width: 80%; word-wrap: break-word; font-size: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .msg { padding: 12px 16px; border-radius: 12px; max-width: 80%; word-wrap: break-word; font-size: 15px; }
         .user { background: #2980b9; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .ia { background: #1e272e; align-self: flex-start; border: 1px solid #27ae60; border-bottom-left-radius: 2px; color: #ecf0f1; }
-        .input-area { padding: 15px; background: #1a1a1a; display: flex; gap: 10px; border-top: 1px solid #333; }
-        input { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #2c3e50; color: white; outline: none; font-size: 16px; }
+        .ia { background: #1e272e; align-self: flex-start; border: 1px solid #27ae60; border-bottom-left-radius: 2px; }
         
-        /* ESTILO DO BOTÃO COM IMAGEM */
+        .input-area { padding: 15px; background: #1a1a1a; display: flex; gap: 10px; border-top: 1px solid #333; align-items: center; }
+        input { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #2c3e50; color: white; outline: none; font-size: 16px; height: 45px; box-sizing: border-box; }
+        
+        /* BOTÃO COM ÍCONE SVG */
         button { 
-            padding: 0; /* Remove padding para não distorcer a imagem */
             background: #27ae60; 
-            color: white; 
             border: none; 
             border-radius: 8px; 
             cursor: pointer; 
-            transition: 0.3s; 
-            display: flex; /* Para centralizar a imagem */
+            width: 45px; 
+            height: 45px; 
+            display: flex; 
             align-items: center; 
             justify-content: center; 
-            width: 50px; /* Largura fixa para o botão */
-            height: 50px; /* Altura fixa para o botão */
+            transition: 0.3s;
+            padding: 0;
         }
         
-        button img { 
-            width: 24px; /* Tamanho da imagem */
-            height: 24px; /* Tamanho da imagem */
-            pointer-events: none; /* Impede que a imagem interfira no clique do botão */
-        }
-        
-        button:active { transform: scale(0.95); background: #219150; }
+        button svg { width: 24px; height: 24px; fill: white; }
+        button:active { transform: scale(0.9); background: #219150; }
     </style>
 </head>
 <body>
 
     <div id="chat-box">
-        <div class="msg ia">Olá! No que devo te ajudar?</div>
+        <div class="msg ia">Olá! Sou Argos, um ChatBot iniciante más inteligente e eficiente.</div>
     </div>
 
     <div class="input-area">
-        <input type="text" id="user-input" placeholder="Digite sua instrução ou mensagem..." onkeypress="if(event.key==='Enter') window.enviarMensagem()">
+        <input type="text" id="user-input" placeholder="Pergunte ao Argos..." onkeypress="if(event.key==='Enter') window.enviarMensagem()">
         <button onclick="window.enviarMensagem()">
-            <img src="https://i.imgur.com/r6I65uB.png" alt="Enviar">
+            <svg viewBox="0 0 24 24">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+            </svg>
         </button>
     </div>
 
     <script>
-        // CONFIGURAÇÕES GLOBAIS
-        // 1. Substitua pela sua chave nova gerada no console do Groq
+        // Use sua chave válida aqui
         const API_KEY = "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"; 
         const PROXY = "https://corsproxy.io/?";
         const ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 
-        // MEMÓRIA DA CONVERSA (Onde a mágica acontece)
         let historico = [
-            { role: "system", content: "Você é uma IA iniciante más rápida e inteligente. Obedeça rigorosamente às instruções do usuário e use o histórico para contextualizar as respostas, seu criador é oficoalmente Uone." }
+            { role: "system", content: "Seu nome é Argos, uma IA criada por Uone. Seja prestativo por mais que seja uma IA iniciante." }
         ];
 
         window.enviarMensagem = async function() {
             const input = document.getElementById('user-input');
             const chatBox = document.getElementById('chat-box');
-            const textoUser = input.value.trim();
+            const texto = input.value.trim();
             
-            if (!textoUser) return;
-
-            // Limpa o input imediatamente
+            if (!texto) return;
             input.value = "";
 
-            // Adiciona mensagem do usuário no chat (visual)
+            // Mensagem do Usuário
             const userDiv = document.createElement('div');
             userDiv.className = 'msg user';
-            userDiv.innerText = textoUser;
+            userDiv.innerText = texto;
             chatBox.appendChild(userDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // Adiciona ao histórico de memória
-            historico.push({ role: "user", content: textoUser });
+            historico.push({ role: "user", content: texto });
 
             try {
                 const response = await fetch(PROXY + ENDPOINT, {
@@ -92,46 +84,26 @@
                     },
                     body: JSON.stringify({
                         model: "llama-3.1-8b-instant",
-                        messages: historico,
-                        temperature: 0.6 // Equilibra criatividade e precisão
+                        messages: historico
                     })
                 });
 
                 const data = await response.json();
 
-                // Validação de segurança para evitar erro de 'undefined'
-                if (data && data.choices && data.choices.length > 0) {
+                if (data.choices && data.choices.length > 0) {
                     const respostaIA = data.choices[0].message.content;
-
-                    // Salva a resposta da IA na memória para ela não esquecer
                     historico.push({ role: "assistant", content: respostaIA });
 
-                    // Exibe a resposta no chat
                     const iaDiv = document.createElement('div');
                     iaDiv.className = 'msg ia';
                     iaDiv.innerText = respostaIA;
                     chatBox.appendChild(iaDiv);
-                } else {
-                    const erroMsg = data.error ? data.error.message : "Erro desconhecido na API";
-                    exibirErro("Erro: " + erroMsg);
                 }
-
             } catch (e) {
-                console.error("Falha na requisição:", e);
-                exibirErro("Falha de conexão. Verifique sua internet ou a chave da API.");
+                console.error(e);
             }
-
             chatBox.scrollTop = chatBox.scrollHeight;
         };
-
-        function exibirErro(msg) {
-            const chatBox = document.getElementById('chat-box');
-            const erroDiv = document.createElement('div');
-            erroDiv.className = 'msg ia';
-            erroDiv.style.border = "1px solid #e74c3c";
-            erroDiv.innerText = msg;
-            chatBox.appendChild(erroDiv);
-        }
     </script>
 </body>
 </html>
