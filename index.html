@@ -18,23 +18,16 @@
         }
         
         body, html { 
-            background: var(--bg); 
-            color: var(--text); 
+            background: var(--bg); color: var(--text); 
             font-family: -apple-system, system-ui, sans-serif; 
-            margin: 0; padding: 0; 
-            height: 100dvh; 
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
+            margin: 0; padding: 0; height: 100dvh; 
+            overflow: hidden; display: flex; justify-content: center;
         }
         
         .container { 
-            display: flex; 
-            flex-direction: column; 
-            height: 100%; 
-            width: 100%;
-            max-width: 500px;
-            background: var(--bg);
+            display: flex; flex-direction: column; 
+            height: 100%; width: 100%; max-width: 500px;
+            background: var(--bg); position: relative;
         }
 
         header { 
@@ -57,46 +50,37 @@
         }
         .dropdown button { width: 100%; padding: 14px; background: none; border: none; color: var(--text); text-align: left; cursor: pointer; font-size: 14px; }
 
-        #chat { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px;
-            position: relative;
-        }
+        #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; position: relative; }
 
-        /* TELA INICIAL (QUANDO VAZIO) */
+        /* TELA INICIAL CENTRALIZADA */
         #empty-state {
-            position: absolute;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            width: 80%;
-            pointer-events: none;
+            position: absolute; top: 45%; left: 50%;
+            transform: translate(-50%, -50%); text-align: center;
+            width: 80%; pointer-events: none;
         }
-        #empty-state h2 { font-size: 22px; margin: 0; color: white; }
-        #empty-state p { font-size: 14px; color: #8b949e; margin-top: 8px; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 4px; }
+        #empty-state h2 { font-size: 20px; margin: 0; color: white; text-transform: uppercase; }
+        #empty-state .linha { width: 120px; height: 2px; background: var(--accent); margin: 10px auto; opacity: 0.7; }
         
         .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.5; z-index: 2; }
         .user { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
         .ai { align-self: flex-start; background: var(--bubble-ai); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
 
+        /* BARRA DE INPUT COM MARGEM PARA A SETA */
         #input-area { 
-            padding: 12px 15px; 
-            background: #161b22; 
-            display: flex; 
-            gap: 10px; 
-            border-top: 1px solid var(--border);
-            align-items: center;
-            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            padding: 12px 15px; background: #161b22; 
+            display: flex; gap: 10px; border-top: 1px solid var(--border);
+            align-items: center; padding-bottom: calc(12px + env(safe-area-inset-bottom));
         }
         
         input { flex: 1; padding: 12px 18px; border-radius: 25px; border: 1px solid var(--border); background: #0d1117; color: white; outline: none; font-size: 16px; min-width: 0; }
         
-        #btn-enviar { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--accent); padding: 5px; margin-right: 5px; flex-shrink: 0; }
+        #btn-enviar { 
+            background: none; border: none; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; 
+            color: var(--accent); padding: 5px; 
+            margin-right: 5px; /* AQUI ESTÁ O ESPAÇO DA DIREITA */
+            flex-shrink: 0; 
+        }
         #btn-enviar svg { width: 28px; height: 28px; fill: currentColor; }
         #btn-enviar:disabled { opacity: 0.3; }
 
@@ -116,15 +100,15 @@
             <div class="menu-container">
                 <button class="btn-menu" onclick="toggleMenu()">⋮</button>
                 <div id="dropdown" class="dropdown">
-                    <button onclick="abrirModal()">Excluir Chat</button>
+                    <button onclick="abrirModal()">🗑️ Excluir Chat</button>
                 </div>
             </div>
         </header>
 
         <div id="chat">
             <div id="empty-state">
-                <h2>Olá, tudo bem?</h2>
-                <p>Pergunte algo e eu responderei.</p>
+                <h2>Olá, como devo te chamar?</h2>
+                <div class="linha"></div>
             </div>
         </div>
 
@@ -139,7 +123,6 @@
     <div id="modal-confirm" class="modal-overlay">
         <div class="modal">
             <p style="margin:0; font-size:16px;">Você tem certeza que vai deletar este chat?</p>
-            <p style="color:var(--danger); font-size:13px; margin:10px 0 0 0;">(Esta ação é irreversível)</p>
             <div class="modal-btns">
                 <button class="btn-nao" onclick="fecharModal()">Não</button>
                 <button class="btn-sim" onclick="deletarChat()">Sim</button>
@@ -151,7 +134,7 @@
         const CONFIG = {
             API_KEY: "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",
             MODELO: "llama-3.3-70b-versatile",
-            SYSTEM_PROMPT: "Seu nome é Argos. Você é uma IA de elite, rápida e lógica. No início, apresente-se como uma IA iniciante criada por Uone."
+            SYSTEM_PROMPT: "Seu nome é Argos. Criado por Uone. Seja uma IA direta e lógica."
         };
 
         let historico = JSON.parse(localStorage.getItem('argos_vFinal')) || [{ role: "system", content: CONFIG.SYSTEM_PROMPT }];
@@ -160,41 +143,35 @@
         const emptyState = document.getElementById('empty-state');
         const input = document.getElementById('user-input');
         const btnEnviar = document.getElementById('btn-enviar');
-        const dropdown = document.getElementById('dropdown');
-        const modal = document.getElementById('modal-confirm');
 
         function init() {
             chatDiv.innerHTML = '';
-            chatDiv.appendChild(emptyState); // Re-anexa o empty state
-            
+            chatDiv.appendChild(emptyState);
             const msgsReais = historico.filter(m => m.role !== 'system');
-            
             if (msgsReais.length > 0) {
                 emptyState.style.display = 'none';
                 msgsReais.forEach(m => renderMsg(m.content, m.role === 'user' ? 'user' : 'ai'));
-            } else {
-                emptyState.style.display = 'block';
             }
             scrollChat();
         }
 
-        function toggleMenu() { dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; }
-        function abrirModal() { modal.style.display = 'flex'; dropdown.style.display = 'none'; }
-        function fecharModal() { modal.style.display = 'none'; }
+        function toggleMenu() { document.getElementById('dropdown').style.display = document.getElementById('dropdown').style.display === 'block' ? 'none' : 'block'; }
+        function abrirModal() { document.getElementById('modal-confirm').style.display = 'flex'; document.getElementById('dropdown').style.display = 'none'; }
+        function fecharModal() { document.getElementById('modal-confirm').style.display = 'none'; }
         
         function deletarChat() { 
             localStorage.removeItem('argos_vFinal'); 
             historico = [{ role: "system", content: CONFIG.SYSTEM_PROMPT }]; 
             init(); 
-            fecharModal(); 
+            fecharModal();
+            emptyState.style.display = 'block';
         }
 
         async function enviar() {
             const texto = input.value.trim();
             if(!texto || btnEnviar.disabled) return;
 
-            if (emptyState.style.display !== 'none') emptyState.style.display = 'none';
-
+            emptyState.style.display = 'none';
             renderMsg(texto, 'user');
             historico.push({ role: "user", content: texto });
             input.value = '';
@@ -206,12 +183,10 @@
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: { "Authorization": `Bearer ${CONFIG.API_KEY}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ model: CONFIG.MODELO, messages: historico, temperature: 0.7 })
+                    body: JSON.stringify({ model: CONFIG.MODELO, messages: historico, temperature: 0.5 }) // Temperatura menor = menos loucura
                 });
-
                 const data = await res.json();
                 const resposta = data.choices[0].message.content;
-                
                 msgIA.innerHTML = marked.parse(resposta);
                 historico.push({ role: "assistant", content: resposta });
                 localStorage.setItem('argos_vFinal', JSON.stringify(historico));
@@ -234,9 +209,8 @@
         }
 
         function scrollChat() { chatDiv.scrollTop = chatDiv.scrollHeight; }
-
         input.addEventListener("keypress", (e) => { if(e.key === "Enter") enviar(); });
-        window.onclick = (e) => { if (!e.target.matches('.btn-menu')) dropdown.style.display = 'none'; };
+        window.onclick = (e) => { if (!e.target.matches('.btn-menu')) document.getElementById('dropdown').style.display = 'none'; };
         window.onload = init;
     </script>
 </body>
