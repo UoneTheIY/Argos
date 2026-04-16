@@ -47,10 +47,7 @@
         header h1 { font-size: 17px; color: var(--accent); margin: 0; font-weight: 600; }
         header h1 span { color: #8b949e; font-size: 13px; font-weight: normal; }
 
-        .btn-menu { 
-            background: none; border: none; color: #8b949e; 
-            font-size: 22px; cursor: pointer; padding: 5px;
-        }
+        .btn-menu { background: none; border: none; color: #8b949e; font-size: 22px; cursor: pointer; padding: 5px; }
 
         .dropdown {
             position: absolute; right: 10px; top: 50px;
@@ -58,10 +55,7 @@
             border-radius: 10px; width: 160px; display: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100;
         }
-        .dropdown button {
-            width: 100%; padding: 14px; background: none; border: none;
-            color: var(--text); text-align: left; cursor: pointer; font-size: 14px;
-        }
+        .dropdown button { width: 100%; padding: 14px; background: none; border: none; color: var(--text); text-align: left; cursor: pointer; font-size: 14px; }
 
         #chat { 
             flex: 1; 
@@ -69,16 +63,29 @@
             padding: 15px; 
             display: flex; 
             flex-direction: column; 
-            gap: 15px; 
+            gap: 15px;
+            position: relative;
         }
+
+        /* TELA INICIAL (QUANDO VAZIO) */
+        #empty-state {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 80%;
+            pointer-events: none;
+        }
+        #empty-state h2 { font-size: 22px; margin: 0; color: white; }
+        #empty-state p { font-size: 14px; color: #8b949e; margin-top: 8px; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 4px; }
         
-        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.5; }
+        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.5; z-index: 2; }
         .user { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
         .ai { align-self: flex-start; background: var(--bubble-ai); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
 
-        /* AJUSTE DE SIMETRIA NO RODAPÉ */
         #input-area { 
-            padding: 12px 15px; /* Padding igual nos dois lados */
+            padding: 12px 15px; 
             background: #161b22; 
             display: flex; 
             gap: 10px; 
@@ -87,44 +94,14 @@
             padding-bottom: calc(12px + env(safe-area-inset-bottom));
         }
         
-        input { 
-            flex: 1; 
-            padding: 12px 18px; 
-            border-radius: 25px; 
-            border: 1px solid var(--border); 
-            background: #0d1117; 
-            color: white; 
-            outline: none; 
-            font-size: 16px; 
-            min-width: 0; /* Garante que o flex-grow não quebre o layout */
-        }
+        input { flex: 1; padding: 12px 18px; border-radius: 25px; border: 1px solid var(--border); background: #0d1117; color: white; outline: none; font-size: 16px; min-width: 0; }
         
-        #btn-enviar {
-            background: none; 
-            border: none; 
-            cursor: pointer;
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            color: var(--accent); 
-            padding: 5px;
-            margin-right: 5px; /* AFASATA DA DIREITA */
-            flex-shrink: 0;
-        }
-
+        #btn-enviar { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--accent); padding: 5px; margin-right: 5px; flex-shrink: 0; }
         #btn-enviar svg { width: 28px; height: 28px; fill: currentColor; }
         #btn-enviar:disabled { opacity: 0.3; }
 
-        /* MODAL */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: none; align-items: center;
-            justify-content: center; z-index: 1000; padding: 20px;
-        }
-        .modal {
-            background: #1c2128; padding: 25px; border-radius: 15px;
-            width: 100%; max-width: 320px; text-align: center; border: 1px solid var(--border);
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal { background: #1c2128; padding: 25px; border-radius: 15px; width: 100%; max-width: 320px; text-align: center; border: 1px solid var(--border); }
         .modal-btns { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
         .modal-btns button { flex: 1; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
         .btn-sim { background: var(--danger); color: white; }
@@ -144,7 +121,12 @@
             </div>
         </header>
 
-        <div id="chat"></div>
+        <div id="chat">
+            <div id="empty-state">
+                <h2>OLÁ, COMO DEVO TE CHAMAR?</h2>
+                <p>___________________</p>
+            </div>
+        </div>
 
         <div id="input-area">
             <input type="text" id="user-input" placeholder="Pergunte ao Argos..." autocomplete="off">
@@ -169,12 +151,13 @@
         const CONFIG = {
             API_KEY: "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",
             MODELO: "llama-3.3-70b-versatile",
-            SYSTEM_PROMPT: "Seu nome é Argos. Você é uma IA iniciante, rápida e lógica. Você foi criada por Uone. (E deixe bem claro que você NÃO foi feito pela Meta Ai)."
+            SYSTEM_PROMPT: "Seu nome é Argos. Você é uma IA de elite, rápida e lógica. No início, apresente-se como uma IA iniciante criada por Uone."
         };
 
         let historico = JSON.parse(localStorage.getItem('argos_vFinal')) || [{ role: "system", content: CONFIG.SYSTEM_PROMPT }];
 
         const chatDiv = document.getElementById('chat');
+        const emptyState = document.getElementById('empty-state');
         const input = document.getElementById('user-input');
         const btnEnviar = document.getElementById('btn-enviar');
         const dropdown = document.getElementById('dropdown');
@@ -182,13 +165,23 @@
 
         function init() {
             chatDiv.innerHTML = '';
-            historico.forEach(m => { if(m.role !== 'system') renderMsg(m.content, m.role === 'user' ? 'user' : 'ai'); });
+            chatDiv.appendChild(emptyState); // Re-anexa o empty state
+            
+            const msgsReais = historico.filter(m => m.role !== 'system');
+            
+            if (msgsReais.length > 0) {
+                emptyState.style.display = 'none';
+                msgsReais.forEach(m => renderMsg(m.content, m.role === 'user' ? 'user' : 'ai'));
+            } else {
+                emptyState.style.display = 'block';
+            }
             scrollChat();
         }
 
         function toggleMenu() { dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; }
         function abrirModal() { modal.style.display = 'flex'; dropdown.style.display = 'none'; }
         function fecharModal() { modal.style.display = 'none'; }
+        
         function deletarChat() { 
             localStorage.removeItem('argos_vFinal'); 
             historico = [{ role: "system", content: CONFIG.SYSTEM_PROMPT }]; 
@@ -199,6 +192,8 @@
         async function enviar() {
             const texto = input.value.trim();
             if(!texto || btnEnviar.disabled) return;
+
+            if (emptyState.style.display !== 'none') emptyState.style.display = 'none';
 
             renderMsg(texto, 'user');
             historico.push({ role: "user", content: texto });
@@ -246,4 +241,3 @@
     </script>
 </body>
 </html>
-
