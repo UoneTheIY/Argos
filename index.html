@@ -3,101 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uone IA - Filtro de Texto</title>
+    <title>A.M</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: white; display: flex; flex-direction: column; height: 100vh; margin: 0; }
-        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        .msg { padding: 12px 16px; border-radius: 12px; max-width: 80%; word-wrap: break-word; line-height: 1.5; }
-        .user { background: #2980b9; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .ia { background: #1e272e; align-self: flex-start; border: 1px solid #27ae60; border-bottom-left-radius: 2px; }
-        
-        .input-area { padding: 15px; background: #1a1a1a; display: flex; gap: 10px; border-top: 1px solid #333; }
-        input { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #2c3e50; color: white; outline: none; }
-        
-        button { 
-            background: #27ae60; border: none; border-radius: 8px; width: 45px; height: 45px; 
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        :root {
+            --bg: #0a0a0a;
+            --panel: #161616;
+            --accent: #00ffcc;
+            --text: #e0e0e0;
+            --user-msg: #1e3a8a;
         }
-        button svg { width: 22px; height: 22px; fill: white; }
-        
-        /* Estilo para destacar o negrito */
-        b, strong { color: #f1c40f; font-weight: bold; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: var(--panel);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid var(--accent);
+            box-shadow: 0 4px 15px rgba(0, 255, 204, 0.1);
+        }
+
+        h1 { margin: 0; font-size: 1.5rem; letter-spacing: 2px; color: var(--accent); }
+
+        /* Área de Chat */
+        #chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--user-msg);
+            border-bottom-right-radius: 2px;
+        }
+
+        .am-message {
+            align-self: flex-start;
+            background-color: var(--panel);
+            border-left: 4px solid var(--accent);
+            border-bottom-left-radius: 2px;
+        }
+
+        /* Área de Input */
+        .input-area {
+            background: var(--panel);
+            padding: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            background: #222;
+            border: 1px solid #444;
+            padding: 12px;
+            color: white;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        input:focus { border-color: var(--accent); }
+
+        button {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 0 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover { opacity: 0.8; transform: translateY(-2px); }
+
+        /* Scrollbar customizada */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="chat-box"></div>
+<header>
+    <h1>A.M</h1>
+</header>
 
-    <div class="input-area">
-        <input type="text" id="user-input" placeholder="Diga algo..." onkeypress="if(event.key==='Enter') window.enviarMensagem()">
-        <button onclick="window.enviarMensagem()">
-            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
-        </button>
-    </div>
+<div id="chat-container">
+    <div class="message am-message">Olá! Eu sou A.M. Como posso ajudar hoje?</div>
+</div>
 
-    <script>
-        const API_KEY = "SUA_CHAVE_AQUI"; 
-        const PROXY = "https://corsproxy.io/?";
-        const ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
+<div class="input-area">
+    <input type="text" id="userInput" placeholder="Pergunta á A.M." onkeypress="handleKeyPress(event)">
+    <button onclick="sendMessage()">Send</button>
+</div>
 
-        let historico = [{ role: "system", content: "Você é o Argos. Quando usar expressões de surpresa, destaque-as." }];
+<script>
+    // --- CONFIGURAÇÃO ---
+    const GROQ_API_KEY = "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"; // <--- COLOQUE SUA CHAVE AQUI
+    
+    // MEMÓRIA DE CONTEXTO
+    let messages = [
+        { role: "system", content: "Você é a A.M. (Advanced Machine), uma inteligência artificial de elite. Suas respostas devem ser precisas, lógicas e eficientes." }
+    ];
 
-        // FUNÇÃO PARA FORMATAR O TEXTO (Negrito automático)
-        function formatarResposta(texto) {
-            // 1. Cria uma lista de palavras que você quer que fiquem SEMPRE em negrito
-            const palavrasChave = ["meu Deus", "Meu Deus", "caramba", "uau", "Uone"];
-            
-            let textoFormatado = texto;
+    async function sendMessage() {
+        const inputField = document.getElementById('userInput');
+        const chatContainer = document.getElementById('chat-container');
+        const text = inputField.value.trim();
 
-            // Substitui cada palavra da lista por ela mesma dentro de <b>
-            palavrasChave.forEach(palavra => {
-                const regex = new RegExp(palavra, "g");
-                textoFormatado = textoFormatado.replace(regex, `<b>${palavra}</b>`);
+        if (!text) return;
+
+        // 1. Mostrar mensagem do usuário na tela
+        appendMessage('user', text);
+        inputField.value = '';
+
+        // 2. Adicionar ao histórico (Memória)
+        messages.push({ role: "user", content: text });
+
+        try {
+            // 3. Chamada direta para a API do Groq
+            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${GROQ_API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: messages,
+                    temperature: 0.7
+                })
             });
 
-            // 2. Converte marcações de Markdown **texto** para <b>texto</b>
-            textoFormatado = textoFormatado.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            const data = await response.json();
+            const amResponse = data.choices[0].message.content;
 
-            return textoFormatado;
+            // 4. Mostrar resposta da A.M. e salvar na memória
+            appendMessage('am', amResponse);
+            messages.push({ role: "assistant", content: amResponse });
+
+        } catch (error) {
+            appendMessage('am', "ERRO CRÍTICO: Falha na conexão com o núcleo Groq.");
+            console.error(error);
         }
+    }
 
-        window.enviarMensagem = async function() {
-            const input = document.getElementById('user-input');
-            const chatBox = document.getElementById('chat-box');
-            const texto = input.value.trim();
-            if (!texto) return;
-            input.value = "";
+    function appendMessage(role, text) {
+        const chatContainer = document.getElementById('chat-container');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${role === 'user' ? 'user-message' : 'am-message'}`;
+        msgDiv.innerText = text;
+        chatContainer.appendChild(msgDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 
-            // Usuário
-            const userDiv = document.createElement('div');
-            userDiv.className = 'msg user';
-            userDiv.innerText = texto;
-            chatBox.appendChild(userDiv);
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') sendMessage();
+    }
+</script>
 
-            historico.push({ role: "user", content: texto });
-
-            try {
-                const response = await fetch(PROXY + ENDPOINT, {
-                    method: "POST",
-                    headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ model: "llama-3.1-8b-instant", messages: historico })
-                });
-
-                const data = await response.json();
-                if (data.choices) {
-                    let respostaRaw = data.choices[0].message.content;
-                    historico.push({ role: "assistant", content: respostaRaw });
-
-                    // APLICA O FORMATADOR AQUI
-                    const iaDiv = document.createElement('div');
-                    iaDiv.className = 'msg ia';
-                    iaDiv.innerHTML = formatarResposta(respostaRaw); // Usamos innerHTML para aceitar as tags <b>
-                    
-                    chatBox.appendChild(iaDiv);
-                }
-            } catch (e) { console.error(e); }
-            chatBox.scrollTop = chatBox.scrollHeight;
-        };
-    </script>
 </body>
 </html>
