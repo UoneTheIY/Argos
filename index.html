@@ -12,19 +12,43 @@
         .ia { background: #1e272e; align-self: flex-start; border: 1px solid #27ae60; border-bottom-left-radius: 2px; color: #ecf0f1; }
         .input-area { padding: 15px; background: #1a1a1a; display: flex; gap: 10px; border-top: 1px solid #333; }
         input { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #2c3e50; color: white; outline: none; font-size: 16px; }
-        button { padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        
+        /* ESTILO DO BOTÃO COM IMAGEM */
+        button { 
+            padding: 0; /* Remove padding para não distorcer a imagem */
+            background: #27ae60; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            display: flex; /* Para centralizar a imagem */
+            align-items: center; 
+            justify-content: center; 
+            width: 50px; /* Largura fixa para o botão */
+            height: 50px; /* Altura fixa para o botão */
+        }
+        
+        button img { 
+            width: 24px; /* Tamanho da imagem */
+            height: 24px; /* Tamanho da imagem */
+            pointer-events: none; /* Impede que a imagem interfira no clique do botão */
+        }
+        
         button:active { transform: scale(0.95); background: #219150; }
     </style>
 </head>
 <body>
 
     <div id="chat-box">
-        <div class="msg ia">Olá! Tudo bem?</div>
+        <div class="msg ia">Olá! No que devo te ajudar?</div>
     </div>
 
     <div class="input-area">
         <input type="text" id="user-input" placeholder="Digite sua instrução ou mensagem..." onkeypress="if(event.key==='Enter') window.enviarMensagem()">
-        <button onclick="window.enviarMensagem()">Enviar</button>
+        <button onclick="window.enviarMensagem()">
+            <img src="https://i.imgur.com/r6I65uB.png" alt="Enviar">
+        </button>
     </div>
 
     <script>
@@ -36,7 +60,7 @@
 
         // MEMÓRIA DA CONVERSA (Onde a mágica acontece)
         let historico = [
-            { role: "system", content: "Você é uma IA iniciante más inteligente. Obedeça rigorosamente às instruções do usuário e use o histórico para contextualizar as respostas, seu criador é originalmente Uone e seu nome é Argos." }
+            { role: "system", content: "Você é uma IA iniciante más rápida e inteligente. Obedeça rigorosamente às instruções do usuário e use o histórico para contextualizar as respostas, seu criador é oficoalmente Uone." }
         ];
 
         window.enviarMensagem = async function() {
