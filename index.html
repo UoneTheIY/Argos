@@ -98,11 +98,11 @@
 
     <div class="container">
         <header>
-            <h1>Argos Ai <span>(v1, iniciante)</span></h1>
+            <h1>Argos Ai <span>(v2 Otimizada)</span></h1>
             <div class="menu-container">
                 <button class="btn-menu" onclick="toggleMenu()">⋮</button>
                 <div id="dropdown" class="dropdown">
-                    <button onclick="abrirModal()">Excluir Chat</button>
+                    <button onclick="abrirModal()">🗑️ Excluir Chat</button>
                 </div>
             </div>
         </header>
@@ -136,7 +136,7 @@
         const CONFIG = {
             API_KEY: "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",
             MODELO: "llama-3.3-70b-versatile",
-            SYSTEM_PROMPT: "Seu nome é Argos, você é uma IA iniciante criado por Uone. Seja extremamente inteligente, direto e útil. Use markdown para formatar códigos ou listas."
+            SYSTEM_PROMPT: "Seu nome é Argos, criado por Uone. Seja extremamente inteligente, direto e útil. Use markdown para formatar códigos ou listas."
         };
 
         let historico = JSON.parse(localStorage.getItem('argos_vFinal')) || [{ role: "system", content: CONFIG.SYSTEM_PROMPT }];
